@@ -16,6 +16,6 @@ public class Main extends Activity {
     }
 
     public void go(View view) {
-        startActivity(new Intent(this, Counter.class));
+        startActivity(new Intent(this, Round.class));
     }
 }

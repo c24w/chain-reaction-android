@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="chain_reaction_android"
+		 default="tresorit-sync">
+
+	<target name="tresorit-sync">
+
+		<copy file="out/production/chain-reaction-android/chain-reaction-android.apk"
+			  tofile="C:/Users/Chris/Documents/My Tresors/APKs/chain-reaction.apk"/>
+
+	</target>
+
+</project>
