@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">Chain Reaction</string>
+	<string name="go_btn_text">Go!</string>
+	<string name="go_btn_id">go_btn</string>
+
+	<string name="counter_inc_btn_text"></string>
+	<string name="counter_dec_btn_text"></string>
+</resources>

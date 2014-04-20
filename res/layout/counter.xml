@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		xmlns:android="http://schemas.android.com/apk/res/android">
+	<EditText
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:id="@id/counter_value"
+			android:layout_gravity="left|top"
+			android:textAlignment="center"
+			android:gravity="center"
+			android:password="false"
+			android:editable="false"
+			android:inputType="number"
+			android:background="@android:color/transparent"
+			android:focusable="false"
+			android:textColor="#fff"
+			android:textSize="100sp"
+			android:text="[count]"/>
+	<LinearLayout
+			android:orientation="vertical"
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent">
+		<Button
+				android:layout_width="match_parent"
+				android:layout_height="0dp"
+				android:text="@string/counter_inc_btn_text"
+				android:layout_weight="1"
+				android:background="@android:color/transparent"
+				android:id="@id/counter_btn_inc"
+				android:onClick="increment"/>
+		<Button
+				android:layout_width="match_parent"
+				android:layout_height="0dp"
+				android:text="@string/counter_dec_btn_text"
+				android:id="@id/counter_btn_dec"
+				android:layout_weight="1"
+				android:background="@android:color/transparent"
+				android:onClick="decrement"/>
+	</LinearLayout>
+</FrameLayout>

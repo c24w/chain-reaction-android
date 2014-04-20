@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<item name="counter_value" type="id"/>
+	<item name="counter_btn_inc" type="id"/>
+	<item name="counter_btn_dec" type="id"/>
+</resources>
