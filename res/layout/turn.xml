@@ -13,8 +13,7 @@
 			android:background="@android:color/transparent"
 			android:textColor="#fff"
 			android:textSize="100sp"
-			android:id="@+id/editText"
-			android:text="30"
+			android:id="@id/timer_value"
 			android:textAlignment="center"
 			android:gravity="center"/>
 	<FrameLayout

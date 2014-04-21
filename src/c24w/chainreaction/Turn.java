@@ -4,39 +4,57 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.view.View;
 import android.widget.TextView;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by Chris on 19/04/2014.
  */
-public class Round extends Activity {
+public class Turn extends Activity {
     private int count;
+    private long timeLeft;
     private TextView countText;
+    private TextView timerText;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.round);
-        init();
+        setContentView(R.layout.turn);
+        init(savedInstanceState);
     }
 
-    private void init() {
-        count = 0;
+    private void init(Bundle savedInstanceState) {
+        // savedInstanceState is always null on first creation - stub it so defaults are used for getX calls
+        savedInstanceState = savedInstanceState == null ? new Bundle() : savedInstanceState;
+        count = savedInstanceState.getInt("count", 0);
+        timeLeft = savedInstanceState.getLong("timeLeft", 30000);
         countText = (TextView) findViewById(R.id.counter_value);
+        timerText = (TextView) findViewById(R.id.timer_value);
         setCount(count);
+
+        new CountDownTimer(timeLeft, 100) {
+
+            @Override
+            public void onTick(long remaining) {
+                timeLeft = remaining;
+                timerText.setText(String.valueOf(remaining));
+            }
+
+            @Override
+            public void onFinish() {
+            }
+        }.start();
     }
 
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putInt("count", count);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        count = savedInstanceState.getInt("count");
+        savedInstanceState.putLong("timeLeft", timeLeft);
     }
 
     @Override
@@ -56,8 +74,8 @@ public class Round extends Activity {
         };
 
         new AlertDialog.Builder(this)
-                .setPositiveButton("End round", promptHandler)
-                .setNegativeButton("Cancel round", promptHandler)
+                .setPositiveButton("End turn", promptHandler)
+                .setNegativeButton("Cancel turn", promptHandler)
                 .show();
     }
 
@@ -77,3 +95,7 @@ public class Round extends Activity {
         countText.setText(String.valueOf(count));
     }
 }
+
+// Game setup
+//      -> turn || mid-turn: menu -> finish turn
+//            -> time up: 'x scored n', 'start y's turn'

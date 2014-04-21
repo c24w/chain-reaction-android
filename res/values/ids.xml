@@ -4,4 +4,5 @@
 	<item name="counter_value" type="id"/>
 	<item name="counter_inc" type="id"/>
 	<item name="counter_dec" type="id"/>
+	<item name="timer_value" type="id"/>
 </resources>
