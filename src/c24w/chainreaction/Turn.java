@@ -3,13 +3,11 @@ package c24w.chainreaction;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
 import android.widget.TextView;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * Created by Chris on 19/04/2014.
@@ -34,18 +32,18 @@ public class Turn extends Activity {
         timeLeft = savedInstanceState.getLong("timeLeft", 30000);
         countText = (TextView) findViewById(R.id.counter_value);
         timerText = (TextView) findViewById(R.id.timer_value);
-        setCount(count);
+        showCount(count);
 
         new CountDownTimer(timeLeft, 100) {
 
             @Override
             public void onTick(long remaining) {
-                timeLeft = remaining;
-                timerText.setText(String.valueOf(remaining));
+                showTimeLeft(timeLeft = remaining);
             }
 
             @Override
             public void onFinish() {
+                showTimeLeft(timeLeft = 0);
             }
         }.start();
     }
@@ -54,28 +52,34 @@ public class Turn extends Activity {
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putInt("count", count);
-        savedInstanceState.putLong("timeLeft", timeLeft);
+        savedInstanceState.putInt("timeLeft", (int) timeLeft);
+    }
+
+    private void restart() {
+        Intent intent = getIntent();
+        finish();
+        startActivity(intent);
     }
 
     @Override
-    public void onBackPressed() {
-        DialogInterface.OnClickListener promptHandler = new DialogInterface.OnClickListener() {
+    public void onBackPressed() { // TODO: Convert to menu (which pauses) and make back just pause
+        DialogInterface.OnClickListener dialogHandler = new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
+            public void onClick(DialogInterface dialog, int selection) {
+                switch (selection) {
                     case DialogInterface.BUTTON_POSITIVE:
                         goBack();
                         break;
                     case DialogInterface.BUTTON_NEGATIVE:
-                        goBack();
+                        restart();
                         break;
                 }
             }
         };
 
         new AlertDialog.Builder(this)
-                .setPositiveButton("End turn", promptHandler)
-                .setNegativeButton("Cancel turn", promptHandler)
+                .setPositiveButton("Finish turn", dialogHandler)
+                .setNegativeButton("Restart turn", dialogHandler)
                 .show();
     }
 
@@ -84,18 +88,26 @@ public class Turn extends Activity {
     }
 
     public void increment(View view) {
-        setCount(++count);
+        showCount(++count);
     }
 
     public void decrement(View view) {
-        setCount(count == 0 ? count : --count);
+        showCount(count == 0 ? count : --count);
     }
 
-    public void setCount(int count) {
+    private void showCount(int count) {
         countText.setText(String.valueOf(count));
     }
-}
 
-// Game setup
-//      -> turn || mid-turn: menu -> finish turn
-//            -> time up: 'x scored n', 'start y's turn'
+    private void showTimeLeft(long timeLeft) {
+        timerText.setText(timeLeft == 0
+                ? getString(R.string.stop)
+                : formatForDisplay(timeLeft));
+    }
+
+    private String formatForDisplay(long millis) {
+        // Seconds to one DP
+        double value = ((double)Math.round(millis / 100)) / 10;
+        return String.valueOf(value);
+    }
+}
