@@ -52,7 +52,7 @@ public class Turn extends Activity {
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putInt("count", count);
-        savedInstanceState.putInt("timeLeft", (int) timeLeft);
+        savedInstanceState.putLong("timeLeft", timeLeft);
     }
 
     private void restart() {
@@ -62,7 +62,7 @@ public class Turn extends Activity {
     }
 
     @Override
-    public void onBackPressed() { // TODO: Convert to menu (which pauses) and make back just pause
+    public void onBackPressed() {
         DialogInterface.OnClickListener dialogHandler = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int selection) {
