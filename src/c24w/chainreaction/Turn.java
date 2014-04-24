@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.view.View;
 import android.widget.TextView;
 
@@ -14,9 +13,10 @@ import android.widget.TextView;
  */
 public class Turn extends Activity {
     private int count;
-    private long timeLeft;
+    private long remainingTime;
     private TextView countText;
     private TextView timerText;
+    private PauseableTimer timer;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -29,30 +29,44 @@ public class Turn extends Activity {
         // savedInstanceState is always null on first creation - stub it so defaults are used for getX calls
         savedInstanceState = savedInstanceState == null ? new Bundle() : savedInstanceState;
         count = savedInstanceState.getInt("count", 0);
-        timeLeft = savedInstanceState.getLong("timeLeft", 30000);
+        remainingTime = savedInstanceState.getLong("remainingTime", 30000);
         countText = (TextView) findViewById(R.id.counter_value);
         timerText = (TextView) findViewById(R.id.timer_value);
         showCount(count);
-
-        new CountDownTimer(timeLeft, 100) {
-
-            @Override
-            public void onTick(long remaining) {
-                showTimeLeft(timeLeft = remaining);
-            }
-
-            @Override
-            public void onFinish() {
-                showTimeLeft(timeLeft = 0);
-            }
-        }.start();
+        startTimer(remainingTime);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putInt("count", count);
-        savedInstanceState.putLong("timeLeft", timeLeft);
+        savedInstanceState.putLong("remainingTime", remainingTime);
+        // onCreate is called on re-layout so don't need onRestoreInstanceState
+    }
+
+    private void startTimer(long remainingTime) {
+        timer = new PauseableTimer(remainingTime, 100, new PauseableTimer.Callback() {
+            @Override
+            public void onTick(long timeLeft) {
+                timerText.setText(formatForDisplay(timeLeft));
+            }
+
+            @Override
+            public void onPause() {
+
+            }
+
+            @Override
+            public void onResume() {
+
+            }
+
+            @Override
+            public void onFinish() {
+                timerText.setText(getString(R.string.stop));
+
+            }
+        }).start();
     }
 
     private void restart() {
@@ -99,15 +113,17 @@ public class Turn extends Activity {
         countText.setText(String.valueOf(count));
     }
 
-    private void showTimeLeft(long timeLeft) {
-        timerText.setText(timeLeft == 0
-                ? getString(R.string.stop)
-                : formatForDisplay(timeLeft));
+    public void toggleTimer(View view) {
+        if (timer.isRunning()) {
+            timer.pause();
+        } else {
+            timer.resume();
+        }
     }
 
     private String formatForDisplay(long millis) {
         // Seconds to one DP
-        double value = ((double)Math.round(millis / 100)) / 10;
+        double value = ((double) Math.round(millis / 100)) / 10;
         return String.valueOf(value);
     }
 }

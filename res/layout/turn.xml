@@ -5,18 +5,19 @@
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
 		xmlns:android="http://schemas.android.com/apk/res/android">
-	<EditText
+	<Button
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:ems="10"
 			android:background="@android:color/transparent"
 			android:textColor="#fff"
 			android:textSize="100sp"
 			android:id="@id/timer_value"
 			android:textAlignment="center"
 			android:gravity="center"
-			android:editable="false" android:focusable="false" android:enabled="false" android:numeric="decimal"
-			android:inputType="none" android:textIsSelectable="false"/>
+			android:numeric="decimal"
+			android:inputType="none"
+			android:onClick="toggleTimer"
+			/>
 	<FrameLayout
 			android:layout_width="fill_parent"
 			android:layout_height="fill_parent">
