@@ -17,7 +17,7 @@
 			android:numeric="decimal"
 			android:inputType="none"
 			android:onClick="toggleTimer"
-			/>
+			android:longClickable="false"/>
 	<FrameLayout
 			android:layout_width="fill_parent"
 			android:layout_height="fill_parent">

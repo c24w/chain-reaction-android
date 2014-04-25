@@ -8,65 +8,78 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import java.util.HashMap;
+
 /**
  * Created by Chris on 19/04/2014.
  */
 public class Turn extends Activity {
+
     private int count;
-    private long remainingTime;
     private TextView countText;
     private TextView timerText;
     private PauseableTimer timer;
+    private boolean autoStartTimer = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.turn);
-        init(savedInstanceState);
-    }
 
-    private void init(Bundle savedInstanceState) {
-        // savedInstanceState is always null on first creation - stub it so defaults are used for getX calls
-        savedInstanceState = savedInstanceState == null ? new Bundle() : savedInstanceState;
-        count = savedInstanceState.getInt("count", 0);
-        remainingTime = savedInstanceState.getLong("remainingTime", 30000);
         countText = (TextView) findViewById(R.id.counter_value);
         timerText = (TextView) findViewById(R.id.timer_value);
+        initViews(savedInstanceState);
+    }
+
+    private void initViews(Bundle savedInstanceState) {
+        savedInstanceState = savedInstanceState == null ? new Bundle() : savedInstanceState;
+        count = savedInstanceState.getInt("count", 0);
         showCount(count);
-        startTimer(remainingTime);
+        timer = createTimer(savedInstanceState.getLong("remainingTime", 30000));
+        if (savedInstanceState.getBoolean("timerRunning", autoStartTimer)){
+            timer.start();
+        }
     }
 
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putInt("count", count);
-        savedInstanceState.putLong("remainingTime", remainingTime);
-        // onCreate is called on re-layout so don't need onRestoreInstanceState
+        savedInstanceState.putLong("remainingTime", timer.timeLeft());
+        savedInstanceState.putBoolean("timerRunning", autoStartTimer);
     }
 
-    private void startTimer(long remainingTime) {
-        timer = new PauseableTimer(remainingTime, 100, new PauseableTimer.Callback() {
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Storing this state in a field sucks, but pause fires before
+        // saveInstance so need to capture it before pausing the timer
+        autoStartTimer = timer.isRunning();
+        timer.pause();
+    }
+
+    private PauseableTimer createTimer(long duration) {
+        timerText.setText(formatForDisplay(duration));
+        return new PauseableTimer(duration, 100, new PauseableTimer.Callback() {
             @Override
-            public void onTick(long timeLeft) {
-                timerText.setText(formatForDisplay(timeLeft));
+            public void onTick(long latest) {
+                timerText.setText(formatForDisplay(latest));
             }
 
             @Override
             public void onPause() {
-
             }
 
             @Override
             public void onResume() {
-
             }
 
             @Override
             public void onFinish() {
+                timerText.setOnClickListener(null);
                 timerText.setText(getString(R.string.stop));
-
             }
-        }).start();
+        });
     }
 
     private void restart() {

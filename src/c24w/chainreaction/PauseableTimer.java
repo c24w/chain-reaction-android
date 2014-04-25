@@ -47,6 +47,10 @@ public class PauseableTimer {
         }.start();
     }
 
+    public long timeLeft() {
+        return remainingTime;
+    }
+
     public void pause() {
         if (timer != null) {
             timer.cancel();
