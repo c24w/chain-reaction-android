@@ -3,12 +3,10 @@ package c24w.chainreaction;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
-
-import java.util.HashMap;
 
 /**
  * Created by Chris on 19/04/2014.
@@ -82,37 +80,33 @@ public class Turn extends Activity {
         });
     }
 
-    private void restart() {
-        Intent intent = getIntent();
-        finish();
-        startActivity(intent);
-    }
+    @Override
+    public void onBackPressed() {}
 
     @Override
-    public void onBackPressed() {
+    public boolean onMenuOpened(int featureId, Menu menu) {
         DialogInterface.OnClickListener dialogHandler = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int selection) {
                 switch (selection) {
                     case DialogInterface.BUTTON_POSITIVE:
-                        goBack();
+                        finish();
                         break;
                     case DialogInterface.BUTTON_NEGATIVE:
-                        restart();
+                        finish();
                         break;
                 }
             }
         };
 
         new AlertDialog.Builder(this)
-                .setPositiveButton("Finish turn", dialogHandler)
-                .setNegativeButton("Restart turn", dialogHandler)
+                .setPositiveButton("Complete turn", dialogHandler)
+                .setNegativeButton("Abandon turn", dialogHandler)
                 .show();
+
+        return super.onMenuOpened(featureId, menu);
     }
 
-    public void goBack() {
-        super.onBackPressed();
-    }
 
     public void increment(View view) {
         showCount(++count);
