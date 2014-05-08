@@ -12,13 +12,9 @@ public class PauseableTimer {
     private long remainingTime;
 
     public interface Callback {
-        public void onTick(long timeLeft);
-
-        public void onPause();
-
-        public void onResume();
-
-        public void onFinish();
+        void onStart();
+        void onTick(long timeLeft);
+        void onFinish();
     }
 
     public PauseableTimer(final long duration, final long tickInterval, Callback callback) {
@@ -33,6 +29,7 @@ public class PauseableTimer {
     }
 
     private void startTimer() {
+        callback.onStart();
         timer = new CountDownTimer(remainingTime, tickInterval) {
             @Override
             public void onTick(long timeLeft) {
@@ -55,14 +52,12 @@ public class PauseableTimer {
         if (timer != null) {
             timer.cancel();
             timer = null;
-            callback.onPause();
         }
     }
 
     public void resume() {
         if (timer == null) {
             startTimer();
-            callback.onResume();
         }
     }
 

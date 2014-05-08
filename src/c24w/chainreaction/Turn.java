@@ -16,8 +16,11 @@ public class Turn extends Activity {
     private int count;
     private TextView countText;
     private TextView timerText;
+    private TextView incBtn;
+    private TextView decBtn;
     private PauseableTimer timer;
-    private boolean autoStartTimer = true;
+    private boolean timerRunning = true;
+    private boolean counterEnabled = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -26,17 +29,22 @@ public class Turn extends Activity {
 
         countText = (TextView) findViewById(R.id.counter_value);
         timerText = (TextView) findViewById(R.id.timer_value);
+        incBtn = (TextView) findViewById(R.id.counter_inc);
+        decBtn = (TextView) findViewById(R.id.counter_dec);
         initViews(savedInstanceState);
     }
 
-    private void initViews(Bundle savedInstanceState) {
-        savedInstanceState = savedInstanceState == null ? new Bundle() : savedInstanceState;
-        count = savedInstanceState.getInt("count", 0);
-        showCount(count);
-        timer = createTimer(savedInstanceState.getLong("remainingTime", 30000));
-        if (savedInstanceState.getBoolean("timerRunning", autoStartTimer)){
+    private void initViews(Bundle state) {
+        state = state == null ? new Bundle() : state;
+
+        timer = createTimer(state.getLong("remainingTime", 30000));
+        if (state.getBoolean("timerRunning", timerRunning)) {
             timer.start();
         }
+        counterEnabled = state.getBoolean("counterEnabled", counterEnabled);
+        enabled(counterEnabled, incBtn, decBtn);
+        count = state.getInt("count", 0);
+        showCount(count);
     }
 
     @Override
@@ -44,7 +52,8 @@ public class Turn extends Activity {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putInt("count", count);
         savedInstanceState.putLong("remainingTime", timer.timeLeft());
-        savedInstanceState.putBoolean("timerRunning", autoStartTimer);
+        savedInstanceState.putBoolean("timerRunning", timerRunning);
+        savedInstanceState.putBoolean("counterEnabled", counterEnabled);
     }
 
     @Override
@@ -52,36 +61,42 @@ public class Turn extends Activity {
         super.onPause();
         // Storing this state in a field sucks, but pause fires before
         // saveInstance so need to capture it before pausing the timer
-        autoStartTimer = timer.isRunning();
+        timerRunning = timer.isRunning();
         timer.pause();
     }
 
     private PauseableTimer createTimer(long duration) {
         timerText.setText(formatForDisplay(duration));
         return new PauseableTimer(duration, 100, new PauseableTimer.Callback() {
+
+            @Override
+            public void onStart() {
+                counterEnabled = true;
+                enabled(counterEnabled, incBtn, decBtn);
+            }
+
             @Override
             public void onTick(long latest) {
                 timerText.setText(formatForDisplay(latest));
             }
 
             @Override
-            public void onPause() {
-            }
-
-            @Override
-            public void onResume() {
-            }
-
-            @Override
             public void onFinish() {
-                timerText.setOnClickListener(null);
+                enabled(false, timerText, incBtn, decBtn);
                 timerText.setText(getString(R.string.stop));
             }
         });
     }
 
+    private void enabled(boolean enabled, View... views) {
+        for (View view : views) {
+            view.setEnabled(enabled);
+        }
+    }
+
     @Override
-    public void onBackPressed() {}
+    public void onBackPressed() {
+    }
 
     @Override
     public boolean onMenuOpened(int featureId, Menu menu) {
