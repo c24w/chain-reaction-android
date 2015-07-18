@@ -2,6 +2,8 @@ package c24w.chainreaction;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.Menu;
@@ -15,10 +17,9 @@ public class Turn extends Activity {
 
     private int count;
     private TextView countText;
-    private TextView timerText;
+    private TimerView timer;
     private TextView incBtn;
     private TextView decBtn;
-    private PauseableTimer timer;
     private boolean timerRunning = true;
     private boolean counterEnabled = false;
 
@@ -28,7 +29,7 @@ public class Turn extends Activity {
         setContentView(R.layout.turn);
 
         countText = (TextView) findViewById(R.id.counter_value);
-        timerText = (TextView) findViewById(R.id.timer_value);
+        timer = (TimerView) findViewById(R.id.timer);
         incBtn = (TextView) findViewById(R.id.counter_inc);
         decBtn = (TextView) findViewById(R.id.counter_dec);
         initViews(savedInstanceState);
@@ -37,55 +38,40 @@ public class Turn extends Activity {
     private void initViews(Bundle state) {
         state = state == null ? new Bundle() : state;
 
-        timer = createTimer(state.getLong("remainingTime", 30000));
-        if (state.getBoolean("timerRunning", timerRunning)) {
-            timer.start();
+        timer.setState(state);
+
+        if (state.getBoolean("timerRunning", timerRunning)) { // TODO: Moved this to setState, so remove from here
+            counterEnabled = true;
+            enabled(counterEnabled, incBtn, decBtn);
         }
+        // TODO: Create CounterView and move this inside to setState method, same as TimerView?
         counterEnabled = state.getBoolean("counterEnabled", counterEnabled);
         enabled(counterEnabled, incBtn, decBtn);
         count = state.getInt("count", 0);
         showCount(count);
+        // Fuck this messy shit, use Fragments or something
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.
     }
 
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putInt("count", count);
-        savedInstanceState.putLong("remainingTime", timer.timeLeft());
-        savedInstanceState.putBoolean("timerRunning", timerRunning);
         savedInstanceState.putBoolean("counterEnabled", counterEnabled);
+        timer.saveState(savedInstanceState);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        // Storing this state in a field sucks, but pause fires before
-        // saveInstance so need to capture it before pausing the timer
-        timerRunning = timer.isRunning();
         timer.pause();
     }
 
-    private PauseableTimer createTimer(long duration) {
-        timerText.setText(formatForDisplay(duration));
-        return new PauseableTimer(duration, 100, new PauseableTimer.Callback() {
-
-            @Override
-            public void onStart() {
-                counterEnabled = true;
-                enabled(counterEnabled, incBtn, decBtn);
-            }
-
-            @Override
-            public void onTick(long latest) {
-                timerText.setText(formatForDisplay(latest));
-            }
-
-            @Override
-            public void onFinish() {
-                enabled(false, timerText, incBtn, decBtn);
-                timerText.setText(getString(R.string.stop));
-            }
-        });
+    @Override
+    protected void onResume() {
+        super.onResume();
+        timer.resume();
     }
 
     private void enabled(boolean enabled, View... views) {
@@ -133,19 +119,5 @@ public class Turn extends Activity {
 
     private void showCount(int count) {
         countText.setText(String.valueOf(count));
-    }
-
-    public void toggleTimer(View view) {
-        if (timer.isRunning()) {
-            timer.pause();
-        } else {
-            timer.resume();
-        }
-    }
-
-    private String formatForDisplay(long millis) {
-        // Seconds to one DP
-        double value = ((double) Math.round(millis / 100)) / 10;
-        return String.valueOf(value);
     }
 }
